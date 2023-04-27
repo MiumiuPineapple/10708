@@ -32,7 +32,7 @@ f. Stock_Data.py is the file we run to get data from Yahoo Finance.
 
 
 Note:
-1. Some model scripts would yield different results if you run it multiple times. For those Neural Network models, if you notice that the loss of the first 6 epoch is stuck at 0.7, then you might need to rerun it. Or you will find that the final result is a straight line. My hypothessi here is that we run into some local minimum and get stuck there.
+1. Some model scripts would yield different results if you run it multiple times. For those Neural Network models, if you notice that the loss of the first 5~6 epoch is stuck at 0.7, then you might need to rerun it. Or you will find that the final result is a straight line. My hypothessi here is that we run into some local minimum and get stuck there.
 2. The original scripts were writte on Google Collab. Thus, if you see some system oprations in the script, feel free to delete those. To replicate, you might need to get raw_data by running the Stock_Data.py file and then run the code in models as those code would use the variable raw_data to be the dataset.
 
 
