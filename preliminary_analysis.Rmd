@@ -1,0 +1,105 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-04-22"
+---
+
+```{r}
+library(ggplot2)
+library(scales)
+library(lubridate)
+library(reporttools)
+data = read.csv("data.csv")
+```
+
+```{r}
+summary(data$Log.Return)
+
+summary(data$Volume)
+
+summary(data$X12.day.EMA)
+```
+
+```{r}
+data$Date = ymd(data$Date)
+ggplot(data = data, aes(x = Date, y = VIX)) + geom_point(size = 0.1) + labs(x = "Date", y = "VIX") + scale_x_date(date_labels = "%b-%d-%Y")
+```
+
+```{r}
+vars0 <- with(data, data.frame("Open" = data$Open, "High" = data$High, "Low" = data$Low, "Adj.Close"=data$Adj.Close, "Volume" = data$Volume, "Log.Return" = data$Log.Return, "X12.day.EMA" = data$X12.day.EMA, "X26.day.EMA" = data$X26.day.EMA, "X10.day.vol"=data$X10.day.vol, "X30.day.vol"=data$X30.day.vol, "Log.Volume" = data$Log.Volume, "Log.Volume.Chg"=data$Log.Volume.Chg, "Log.Range"=data$Log.Range, "EMA.12.Chg" =data$EMA.12.Chg, "EMA.26.Chg" = data$EMA.26.Chg, "VIX" = data$VIX, "Fed.Fund.Rate" = data$Fed.Fund.Rate))
+
+attach(vars0, warn.conflicts = FALSE)
+```
+
+
+```{r}
+vars4 <- vars0
+cap4 <- "Summary Statistics"
+tableContinuous(vars = vars4, cap = cap4, stats = c("n", "min", "q1", "median", "mean", "q3", "max"), lab = "tab: cont1", longtable = FALSE, prec = 0)
+```
+
+```{r}
+colnames(data) = c("Date","Open", "High", "Low", "Adj Close", "Volume", "Log Return", "26-day-EMA", "10-day-vol", "30-day-vol", "Log Volume","Log Volume Change","Log Range", "EMA-26-Change", "VIX", "Fed Fund Rate")
+```
+
+
+```{r}
+library(reshape2)
+data1 = data[,c("Log Return", "26-day-EMA", "10-day-vol", "30-day-vol", "Log Volume","Log Volume Change","Log Range", "EMA-26-Change", "VIX", "Fed Fund Rate")]
+cormat <- round(cor(data1, use='pairwise.complete.obs'),2)
+melted_cormat <- melt(cormat)
+head(melted_cormat)
+```
+
+```{r}
+reorder_cormat <- function(cormat){
+# Use correlation between variables as distance
+dd <- as.dist((1-cormat)/2)
+hc <- hclust(dd)
+cormat <-cormat[hc$order, hc$order]
+}
+get_lower_tri<-function(cormat){
+    cormat[upper.tri(cormat)] <- NA
+    return(cormat)
+  }
+  # Get upper triangle of the correlation matrix
+  get_upper_tri <- function(cormat){
+    cormat[lower.tri(cormat)]<- NA
+    return(cormat)
+  }
+  
+cormat <- reorder_cormat(cormat)
+upper_tri <- get_upper_tri(cormat)
+# Melt the correlation matrix
+melted_cormat <- melt(upper_tri, na.rm = TRUE)
+# Create a ggheatmap
+ggheatmap <- ggplot(melted_cormat, aes(Var2, Var1, fill = value))+
+ geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+    name="Correlation") +
+  theme_minimal()+ # minimal theme
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 9, hjust = 1))+
+ coord_fixed()
+# Print the heatmap
+
+
+ggheatmap + 
+geom_text(aes(Var2, Var1, label = value), color = "black", size = 1.9) +
+theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank(),
+  axis.ticks = element_blank(),
+  legend.justification = c(1, 0),
+  legend.position = c(0.6, 0.7),
+  legend.direction = "horizontal")+
+  guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
+                title.position = "top", title.hjust = 0.5))
+
+#print(ggheatmap)
+```
+
