@@ -28,7 +28,7 @@ e. GRU_vol_xxx_yyy_zz.py are the RNN model using GRU structure. Here "xxx" indic
 
 f. Stock_Data.py is the file we run to get data from Yahoo Finance.
 
-3. Data analysis files (To fill by Mingjun)
+3. preliminary_analysis.Rmd: data analysis
 
 
 Note:
